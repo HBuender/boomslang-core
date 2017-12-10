@@ -7,7 +7,7 @@ import org.eclipse.emf.ecore.EcorePackage
 /**
  * Util methods for validation and content assist that depends on widgets that are referenced in the DSL
  */
-class BWidgetUtil {
+class BWidgetUtil { 
 
 	/**
 	 * return a list of names of attributes of type EBoolean of the given EObject

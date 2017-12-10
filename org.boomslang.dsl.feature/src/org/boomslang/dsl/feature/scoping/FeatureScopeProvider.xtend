@@ -110,20 +110,11 @@ class FeatureScopeProvider extends AbstractDeclarativeScopeProvider {
 	}
 
 	def IScope scope_BToScreenSwitch_screen(BToScreenSwitch ctx, EReference ref) {
-        val componentScreen = ctx.componentScreen
-	    val originalScope = delegateGetScope(ctx, ref)
-        val scope = if (componentScreen != null) {
-        	// component part (tab) of a component screen
-	        new FilteringScope(originalScope,[
-	        	isComponentPart && isComponentPartOf(componentScreen)
-	        ])
-        } else {
-        	// not a component part (tab)
-        	new FilteringScope(originalScope,[
+        val scope = 
+        	new FilteringScope(delegateGetScope(ctx, ref),[
 	        	!isComponentPart
 	        ])
-        }        
-        //debugScope(scope)
+        debugScope(scope)
 	    return scope
 	}
 	

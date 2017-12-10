@@ -12,11 +12,6 @@ Feature ScreenSwitch
 	In order to "Verify the grammar"
 	
 	Scenario "Hit all elements on the screen"
-		Given I am on the screen WidgetGroupInWidgetGroup
-		when I from the Yes button I click 
-		then I am on the screen MultiComponent 
-		when I from the EMail textfield I type "DSFDSF"
-		then I am on the screen Simple
-		when I from the Name textfield I type "BAFD"
-		then I am on the screen WidgetGroupInWidgetGroup 
-		when I from the Clear button I click
+		Given I am on the WidgetGroupInWidgetGroup screen
+		when I I click from the Yes button  
+		

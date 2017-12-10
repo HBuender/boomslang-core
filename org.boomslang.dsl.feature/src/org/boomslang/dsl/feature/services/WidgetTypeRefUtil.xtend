@@ -1,9 +1,16 @@
 package org.boomslang.dsl.feature.services
 
+import com.wireframesketcher.model.BooleanSelectionSupport
+import com.wireframesketcher.model.ClickSupport
+import com.wireframesketcher.model.DoubleClickSupport
 import com.wireframesketcher.model.Master
 import com.wireframesketcher.model.ModelPackage
 import com.wireframesketcher.model.NameSupport
+import com.wireframesketcher.model.SelectionSupport
+import com.wireframesketcher.model.TabbedPane
+import com.wireframesketcher.model.TextInputSupport
 import com.wireframesketcher.model.WidgetContainer
+import org.boomslang.dsl.feature.feature.BAssertionComponent
 import org.boomslang.dsl.feature.feature.BCodeStatement
 import org.boomslang.dsl.feature.feature.BCommandComponent
 import org.boomslang.dsl.feature.feature.BScenario
@@ -15,13 +22,6 @@ import org.eclipse.emf.ecore.EcorePackage
 import org.eclipse.xtend.lib.annotations.Data
 
 import static extension org.eclipse.xtext.EcoreUtil2.*
-import com.wireframesketcher.model.SelectionSupport
-import com.wireframesketcher.model.ClickSupport
-import com.wireframesketcher.model.DoubleClickSupport
-import com.wireframesketcher.model.TextInputSupport
-import com.wireframesketcher.model.BooleanSelectionSupport
-import org.boomslang.dsl.feature.feature.BAssertionComponent
-import com.wireframesketcher.model.TabbedPane
 
 class WidgetTypeRefUtil {
 
@@ -30,9 +30,9 @@ class WidgetTypeRefUtil {
 	 * a given {@code dslObject} (using a given {@code widgetRef})
 	 */
 	def getReferencedNameSupport(EObject dslObject, EReference nameSupportRef) {
-		if (dslObject == null || nameSupportRef == null || !(nameSupportRef.getEReferenceType ==
-			ModelPackage.Literals.NAME_SUPPORT ||
-			nameSupportRef.getEReferenceType.getEAllSuperTypes.contains(ModelPackage.Literals.NAME_SUPPORT)) ||
+		if (dslObject == null || nameSupportRef == null ||
+			!(nameSupportRef.getEReferenceType == ModelPackage.Literals.NAME_SUPPORT ||
+				nameSupportRef.getEReferenceType.getEAllSuperTypes.contains(ModelPackage.Literals.NAME_SUPPORT)) ||
 			!dslObject.eClass.getEAllReferences.contains(nameSupportRef)) {
 
 			// TODO log error, model is not as expected
@@ -85,23 +85,23 @@ class WidgetTypeRefUtil {
 	 * @return 1) if dslObject is contained in a BCodeStatement and there is a preceding BCodeStatement with a screen reference, said screen
 	 * 2) otherwise the screen of the BScenario
 	 */
-	def  getWidgetContainerOfNearestContext(EObject dslObject) {
- 		dslObject.getContextInfoOfNearestContext.widgetContainer?.allReferencedScreens
-		
+	def getWidgetContainerOfNearestContext(EObject dslObject) {
+		dslObject.getContextInfoOfNearestContext.widgetContainer?.allReferencedScreens
+
 	}
-	
+
 	/**
 	 * Since a screen can refer to multiple different component screens. This method adds all screens to
 	 * the return set that are used by the referenced screen
 	 */
-	def getAllReferencedScreens(WidgetContainer container){
-		val retList= newArrayList(container);
+	def getAllReferencedScreens(WidgetContainer container) {
+		val retList = newArrayList(container);
 		container.widgets.filter[it instanceof Master].forEach[retList.add((it as Master).screen)]
 		return retList
 	}
-	
+
 	def ContextInfo getContextInfoOfNearestContext(EObject dslObject) {
-		
+
 		if (dslObject == null) {
 			return null
 		}
@@ -111,11 +111,11 @@ class WidgetTypeRefUtil {
 			return null
 		}
 		val codeStatement = dslObject.getContainerOfType(BCodeStatement)
-		
-		if(codeStatement instanceof BToScreenSwitch){
+
+		if (codeStatement instanceof BToScreenSwitch) {
 			return new ContextInfo(bScenario.BToScreenSwitch?.screen, null)
 		}
-        
+
 		if (codeStatement != null) {
 
 			// take the latest switchToScreen or switchToFrame statement
@@ -138,36 +138,63 @@ class WidgetTypeRefUtil {
 		// no screen context found, use screen of BScenario
 		return new ContextInfo(bScenario.BToScreenSwitch?.screen, null)
 	}
-	
-	def getWidgetBeforeOffset(EObject element){
-		if(element instanceof BCommandComponent){
+
+	def getWidgetBeforeOffset(EObject element) {
+		if (element instanceof BCommandComponent) {
 			return element.widget.widget
 		}
-		if(element.getContainerOfType(BCommandComponent)!=null){
-			return	element.getContainerOfType(BCommandComponent).widget.widget
-		}else{
-			return	element.getContainerOfType(BAssertionComponent).widget.widget
+		if (element.getContainerOfType(BCommandComponent) != null) {
+			return element.getContainerOfType(BCommandComponent).widget.widget
+		} else {
+			return element.getContainerOfType(BAssertionComponent).widget.widget
 		}
-		
+
 	}
-	
-	def isContextOfSelectableWidget(EObject model){
-		model.widgetBeforeOffset instanceof SelectionSupport 
-			&& !(model.widgetBeforeOffset instanceof TabbedPane) // uses 'I select the' instead of 'I select'
+
+	def getWidgetTypesOnScreen(EObject it) {
+		val screen = getContextInfoOfNearestContext.widgetContainer
+		val types = newArrayList
+		screen.widgets.forEach [ w |
+			if (w instanceof ClickSupport) {
+				types += ("ClickSupport")
+			}
+			if (w instanceof DoubleClickSupport) {
+				types += ("DoubleClickSupport")
+			}
+			if (w instanceof TextInputSupport) {
+				types += ("TextInputSupport")
+			}
+			if (w instanceof BooleanSelectionSupport) {
+				types += ("TextInputSupport")
+			}
+		]
+		return types
 	}
-	def isContextOfClickableWidget(EObject model){
-		model.widgetBeforeOffset instanceof ClickSupport
+
+	def isContextOfSelectableWidget(EObject it) {
+		widgetTypesOnScreen.contains("SelectionSupport") 
 	}
-	def isContextOfDoubleClickableWidget(EObject model){
-		model.widgetBeforeOffset instanceof DoubleClickSupport
+
+	def isContextOfClickableWidget(EObject it) {
+		widgetTypesOnScreen.contains("ClickSupport")
+	// model.widgetBeforeOffset instanceof ClickSupport
 	}
-	def isContextOfTypeableWidget(EObject model){
-		model.widgetBeforeOffset instanceof TextInputSupport
+
+	def isContextOfDoubleClickableWidget(EObject it) {
+		widgetTypesOnScreen.contains("DoubleClickSupport")
+	// model.widgetBeforeOffset instanceof DoubleClickSupport
 	}
-	def isContextOfCCheckableWidget(EObject model){
-		model.widgetBeforeOffset instanceof BooleanSelectionSupport
+
+	def isContextOfTypeableWidget(EObject it) {
+		widgetTypesOnScreen.contains("TextInputSupport")
+	// model.widgetBeforeOffset instanceof TextInputSupport
 	}
-	
+
+	def isContextOfCCheckableWidget(EObject it) {
+		widgetTypesOnScreen.contains("BooleanSelectionSupport")
+	// model.widgetBeforeOffset instanceof BooleanSelectionSupport
+	}
+
 //	def determineScreen(BToScreenSwitch it) {
 //		if (componentPartScreen != null) {
 //			return componentPartScreen
@@ -175,9 +202,7 @@ class WidgetTypeRefUtil {
 //			return screen
 //		}
 //	}
-
 }
-
 
 /** 
  * Holds information about the context of a code statement:

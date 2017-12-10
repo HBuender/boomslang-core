@@ -64,7 +64,8 @@ BScreenContext:
 BToScreenSwitch:
 	{BToScreenSwitch}
 	//screen=[uid::Screen|QualifiedName]  ('::' componentPartScreen=[uid::Screen|QualifiedName])? 'screen'
-	(OnTab componentScreen=[uid::Screen|QualifiedName] '::' | OnScreen) screen=[uid::Screen|QualifiedName] 
+	//(OnTab componentScreen=[uid::Screen|QualifiedName] '::' | OnScreen) screen=[uid::Screen|QualifiedName] 
+	screen=[uid::Screen|QualifiedName] OnScreen 
 ;
 
 BCodeStatement:
@@ -91,7 +92,7 @@ BAssertionComponentActionParameter:
 
 
 BCommandComponent:
-	FromThe widget=BWidgetWrapper action=BCommandAction
+	 action=BCommandAction FromThe widget=BWidgetWrapper
 ;
 
 BAssertionComponent:
@@ -114,7 +115,7 @@ BCommandAction:
 
 BClickAction:
 	{BClickAction}
-	IClick (bTableSelectParameter=BTableSelectParameter|bTileParameter=BTileParameter)?
+	Click (bTableSelectParameter=BTableSelectParameter|bTileParameter=BTileParameter)?
 ;
 
 BSelectAction:
@@ -435,6 +436,11 @@ IndexEquals:
 
 IClick:
 	'I' 'click'
+;
+
+
+Click:
+	 'click'
 ;
 
 ISelect:

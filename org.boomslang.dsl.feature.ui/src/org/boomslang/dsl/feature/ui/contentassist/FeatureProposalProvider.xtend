@@ -369,9 +369,6 @@ class FeatureProposalProvider extends AbstractFeatureProposalProvider {
 		createTypeProposal(model, assignment, context, acceptor)
 	}
 	
-	override completeBToScreenSwitch_ComponentScreen(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		createTypeProposal(model, assignment, context, acceptor)		
-	}
 	
     override complete_FinallyICloseIt(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		finallyICloseItAccess.group.createKeywordProposal(context, acceptor)
@@ -426,6 +423,7 @@ class FeatureProposalProvider extends AbstractFeatureProposalProvider {
 		}
 		
 		// Filtering the scope to only propose widget types valid in the current context
+		scope.debugScope
 		val scopeAllElements = scope.allElements
 		
 		for (IEObjectDescription description : scopeAllElements) {
@@ -440,7 +438,7 @@ class FeatureProposalProvider extends AbstractFeatureProposalProvider {
 
 				val simpleName = qualifiedNameConverter.toString(qname.skipFirst(qname.segmentCount - 1))
 				val parentQName = qualifiedNameConverter.toString(qname.skipLast(1))
-				var proposalString = simpleName + (if (typeName.equals("::")) typeName else if (typeName.equals("screen")) " " else " " + typeName + " ")
+				var proposalString = simpleName +" "+ typeName//(if (typeName.equals("::")) typeName else if (typeName.equals("screen")) " " else " " + typeName + " ")
 				
 				val proposal = (createCompletionProposal(proposalString, proposalString + " - " + parentQName,
 					null, context) as ConfigurableCompletionProposal)
@@ -451,7 +449,11 @@ class FeatureProposalProvider extends AbstractFeatureProposalProvider {
 			}
 		}
 	}
-
+		
+	def debugScope(IScope scope) {
+		val scopeAllElements = scope.allElements
+		println('Scope elements:\n' + scopeAllElements.join('\n')['- ' + name.toString])
+	}
 	def createTabItemProposal(EObject model, Assignment assignment, ContentAssistContext context,
 		ICompletionProposalAcceptor acceptor) {
 		val widgetTypeERef = GrammarUtil.getReference(assignment.getTerminal() as CrossReference)
