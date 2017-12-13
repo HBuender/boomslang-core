@@ -2,270 +2,217 @@ grammar org.boomslang.dsl.feature.Feature hidden(WS, /* change for TextToEol NL,
 
 import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 import "http://wireframesketcher.com/1.0/model.ecore" as uid
-
-import "org.boomslang.core" as bcore 
-
+import "org.boomslang.core" as bcore
 generate feature "http://www.esgroup.ch/boomslang/dsl/feature/Feature"
 
 // ============================================================================
 // Main elements   
 // ============================================================================
-
 BPackage returns bcore::BPackage:
-	BFeaturePackage
-;
+	BFeaturePackage;
 
 BFeaturePackage:
 	'package' name=QualifiedName
 	bImports+=BImport*
-	bFeature+=BFeature
-;
+	bFeature+=BFeature;
 
 BImport returns bcore::BImport:
-	'import' importedNamespace=QualifiedNameWithWildCard
-;
+	'import' importedNamespace=QualifiedNameWithWildCard;
 
-BNamedModelElement returns bcore::BNamedModelElement: 
-	BFeature | BParameter
-;
+BNamedModelElement returns bcore::BNamedModelElement:
+	BFeature | BParameter;
 
 BFeature:
-	(AtTagScreen tagScreenMode=TagMode? )?
+	(AtTagScreen tagScreenMode=TagMode?)?
 	'Feature' name=ID
 	background=BBackground
-	(scenarios+=BScenario)*
-;
+	(scenarios+=BScenario)*;
 
 BBackground:
-	AsA  role=STRING
-	IwantTo effect=STRING 
-	InOrderTo benefit=STRING
-;
+	AsA role=STRING 
+	IwantTo effect=STRING
+	InOrderTo benefit=STRING;
 
 BParameter:
-	AtParam name=ID
-;
+	AtParam name=ID;
 
 BScenario:
 	(comment=ML_DOCUMENTATION)?
-	((params+=BParameter+ 
-	 AtDataProvider dataProvider=QualifiedName)? &
+	((params+=BParameter+
+	AtDataProvider dataProvider=QualifiedName)? &
 	(AtDependsOn preScenario=[BScenario|QualifiedName])?)
 	'Scenario' name=StringOrId
-
-	GivenIamOnThe bToScreenSwitch=BToScreenSwitch 
-	codeStatements+=BCodeStatement*
-;
+	GivenIamOnThe bToScreenSwitch=BToScreenSwitch
+	codeStatements+=BCodeStatement*;
 
 BScreenContext:
-	BToScreenSwitch
-;
+	BToScreenSwitch;
 
 BToScreenSwitch:
 	{BToScreenSwitch}
 	//screen=[uid::Screen|QualifiedName]  ('::' componentPartScreen=[uid::Screen|QualifiedName])? 'screen'
 	//(OnTab componentScreen=[uid::Screen|QualifiedName] '::' | OnScreen) screen=[uid::Screen|QualifiedName] 
-	screen=[uid::Screen|QualifiedName] OnScreen 
-;
+	screen=[uid::Screen|QualifiedName] OnScreen;
 
 BCodeStatement:
-	(AndI | WhenI ) BCommandComponentActionParameter | 
-	(AndThe | ThenThe | ThenIt ) BAssertionComponentActionParameter |   
+	(AndI | WhenI) BCommandComponentActionParameter |
+	(AndThe | ThenThe | ThenIt) BAssertionComponentActionParameter |
 	ThenIAmOnThe BToScreenSwitch |
-	{BCodeStatement} FinallyICloseIt
-;
-
+	{BCodeStatement} FinallyICloseIt;
 
 BCommandComponentActionParameter:
-	BCommandComponent|BImplementationCommand
-;
+	BCommandComponent | BImplementationCommand;
 
 BAssertionComponentActionParameter:
-	BAssertionComponent|BImplementationAssertion
-;
+	BAssertionComponent | BImplementationAssertion;
 
-
-
-// ============================================================================
+	// ============================================================================
 // Component   
 // ============================================================================
-
-
 BCommandComponent:
-	 action=BCommandAction FromThe widget=BWidgetWrapper
-;
+	action=BCommandAction widget=BWidgetWrapper;
 
 BAssertionComponent:
-	widget=BWidgetWrapper action=BAssertionAction
-;
+	widget=BWidgetWrapper action=BAssertionAction;
 
-
-// ============================================================================
+	// ============================================================================
 // Command Actions   
 // ============================================================================
-
-
-
 BCommandAction:
 	BClickAction | BSelectAction | BTypeAction | BDoubleClickAction | BCheckAction
-	| BTabPaneSelectTabAction
-	| BTreeAction
-	| BCloseAction
-;
+	//	| BTabPaneSelectTabAction
+	//	| BTreeAction
+//	| BCloseAction
+	;
 
 BClickAction:
 	{BClickAction}
-	Click (bTableSelectParameter=BTableSelectParameter|bTileParameter=BTileParameter)?
-;
+	ClickThe ((bTableSelectParameter=BTableSelectParameter | bTileParameter=BTileParameter) FromThe)?;
 
 BSelectAction:
-	ISelect (selectParameter=BSelectParameter | bTableSelectParameter=BTableSelectParameter)
-;
+	{BSelectAction}
+	 (Select selectParameter=BSelectParameter |SelectThe bTableSelectParameter=BTableSelectParameter |Select bDateSelectParameter=BDateSelectParameter) FromThe;
 
 BTypeAction:
-	IType value=BStringOrParam (InThe bTableSelectParameter=BTableSelectParameter)? 
-;
+	{BTypeAction}
+	Type value=BStringOrParam In;
 
 BDoubleClickAction:
 	{BDoubleClickAction}
-	IDoubleClick (bTableSelectParameter=BTableSelectParameter|bTileParameter=BTileParameter)?
-;
+	(DoubleClickThe (bTableSelectParameter=BTableSelectParameter | bTileParameter=BTileParameter) FromThe) |{BDoubleClickAction}
+	DoubleClickThe;
 
 BCheckAction:
-	ICheck bTableSelectParameter=BTableSelectParameter
-;
+	{BCheckAction}
+	Check (bTableSelectParameter=BTableSelectParameter)?;
 
-BTabPaneSelectTabAction:
-	{BTabPaneSelectTabAction}
-	ISelectThe bTabItemWrapper=BTabItemWrapper
-;
+	//BTabPaneSelectTabAction:
+//	{BTabPaneSelectTabAction}
+//	ISelectThe bTabItemWrapper=BTabItemWrapper
+//;
+//
+//BTabItemWrapper:
+//	tabItem=[uid::Item|QualifiedName] 'tab'
+//;
+//
+//BTableAction:
+//	{BTableAction}
+//	ActivateTheCell 
+//	(columnIndex=INT|columnName=BStringOrParam)','(row=INT|rowValue=BStringOrParam)
+//;
+//
+//BTreeAction:
+//	{BTreeAction}
+//	IActivateTheNode nodeQName=NodeQName
+//;
+//
+//BContextMenuAction:
+//	SelectTheEntry nodeQName=NodeQName
+//;
+//
+//BAccordionCommand:
+//	{BAccordionCommand}
+//	ActivateTheArea (row=BIntOrStringOrParam)
+//;
+//BCloseAction:
+//	{BCloseAction} CloseIt;
 
-BTabItemWrapper:
-	tabItem=[uid::Item|QualifiedName] 'tab'
-;
-
-BTableAction:
-	{BTableAction}
-	ActivateTheCell 
-	(columnIndex=INT|columnName=BStringOrParam)','(row=INT|rowValue=BStringOrParam)
-;
-
-BTreeAction:
-	{BTreeAction}
-	IActivateTheNode nodeQName=NodeQName
-;
-
-BContextMenuAction:
-	SelectTheEntry nodeQName=NodeQName
-;
-
-BAccordionCommand:
-	{BAccordionCommand}
-	ActivateTheArea (row=BIntOrStringOrParam)
-;
-
-BCloseAction:
-	CloseIt
-;
-
-// ============================================================================
+	// ============================================================================
 // Assertion Actions   
 // ============================================================================
-
 BAssertionAction:
-	 BPropertyAssertionAction|BBooleanAssertionAction |BContainsAssertionAction| BSelectionAssertionAction | BMatchesAssertionAction | BEqualsAssertion
-	 | BTabAssertion
-;
+	BPropertyAssertionAction | BBooleanAssertionAction | BContainsAssertionAction | BSelectionAssertionAction |
+	BMatchesAssertionAction | BEqualsAssertion
+//	| BTabAssertion
+	;
 
 BPropertyAssertionAction:
-	Property propertyName=ID operator=BCompareOperator value=BIntOrStringOrParam
-;
+	Property propertyName=ID operator=BCompareOperator value=BIntOrStringOrParam;
 
 BBooleanAssertionAction:
-	Is booleanPropertyNotTrue?=Not ? booleanPropertyName=ID 
-;
-// Make multiple values selectable for e.g. lists
+	Is booleanPropertyNotTrue?=Not? booleanPropertyName=ID;
+	// Make multiple values selectable for e.g. lists
 BContainsAssertionAction:
-	Contains value=BIntOrStringOrParam
-;
+	Contains ((No|A) bTableSelectParameter=BTableSelectParameter WithValue)? value=BIntOrStringOrParam;
 
 BSelectionAssertionAction:
-	SelectedEntry operator=BCompareOperator value=BIntOrStringOrParam
-;
+	SelectedEntry operator=BCompareOperator value=BIntOrStringOrParam;
 
 BMatchesAssertionAction:
-	Matches value=BStringOrParam
-;
+	Matches value=BStringOrParam;
 
 BEqualsAssertion:
-	(Equals|NotEquals) value=BStringOrParam
-;
+	(Equals | NotEquals) value=BStringOrParam;
+ 
+//BTabAssertion:
+//	SelectedTabIs bTabItemWrapper=BTabItemWrapper;
 
-BTabAssertion:
-	SelectedTabIs bTabItemWrapper=BTabItemWrapper
-;
-
-
-// ============================================================================
+	// ============================================================================
 // Parameter   
 // ============================================================================
-
-
-
+BDateSelectParameter:
+	TheDate parameter=BStringOrParam
+;
+ 
 //SelectParameter for List widget (Combo, List)
 BSelectParameter:
-	BListSelectParameter
-;
-BListSelectParameter:
-	BSelectNamesParameter|BSelectValuesParameter|BSelectIndicesParameter
-;
-//TODO Convert names, values, indices to parser rules
-BSelectNamesParameter:
-	'names' parameters+=BIntOrStringOrParam (',' parameters+=BIntOrStringOrParam)*
-;
+	BListSelectParameter;
 
+BListSelectParameter:
+	BSelectNamesParameter | BSelectValuesParameter | BSelectIndicesParameter;
+	//TODO Convert names, values, indices to parser rules
+BSelectNamesParameter:
+	'names' parameters+=BIntOrStringOrParam (',' parameters+=BIntOrStringOrParam)*;
 
 BSelectValuesParameter:
-	'values' parameters+=BIntOrStringOrParam (',' parameters+=BIntOrStringOrParam)*
-;
-
+	'values' parameters+=BIntOrStringOrParam (',' parameters+=BIntOrStringOrParam)*;
 
 BSelectIndicesParameter:
-	'indices' parameters+=BIntOrParam (',' parameters+=BIntOrParam)*
-;
+	'indices' parameters+=BIntOrParam (',' parameters+=BIntOrParam)*;
 
-// ============================================================================
+	// ============================================================================
 // Table Parameter   
 // ============================================================================
-
-BTableSelectParameter:
-	CellWhere tableCriteria+=BTableCriteria (',' 'and' tableCriteria+=BTableCriteria)*
-;
-
+BTableSelectParameter: 
+	CellWhere tableCriteria+=BTableCriteria ('and' tableCriteria+=BTableCriteria)*;
 
 BTableCriteria:
-	(column?=Column| Row) operator=BCompareOperator value=BIntOrStringOrParam
-;
+	(column?=Column | Row) operator=BCompareOperator value=BIntOrStringOrParam;
 
 BCompareOperator:
-	Equals|NotEquals|Matches|Contains|IndexEquals
-;
+	Equals | NotEquals | Matches | Contains | IndexEquals;
 
-// ============================================================================
+	// ============================================================================
 // Tile Parameter   
 // ============================================================================
-
 BTileParameter:
-	Where (bPropertyAssertionAction=BPropertyAssertionAction|bBooleanAssertionAction=BBooleanAssertionAction|bAssertionComponent=BAssertionComponent)
-;
-
+	Where (bPropertyAssertionAction=BPropertyAssertionAction | bBooleanAssertionAction=BBooleanAssertionAction |
+	bAssertionComponent=BAssertionComponent);
 
 BImplementationCommand:
-    freeText=STRING
-;
+	freeText=STRING;
 
-
-// ============================================================================
+	// ============================================================================
 // Assertion Parameter   
 // ============================================================================
 
@@ -275,285 +222,257 @@ BImplementationCommand:
 // ============================================================================
 
 // either text or param may be set, but not both
-BStringOrParam :
-	(text=STRING | param=[BParameter|AtSignThenIdOrKeyword])
-;
+BStringOrParam:
+	(text=STRING | param=[BParameter|AtSignThenIdOrKeyword]);
 
-// either int or param may be set, but not both
+	// either int or param may be set, but not both
 BIntOrParam:
-	(int=INT | param=[BParameter|AtSignThenIdOrKeyword])
-;
+	(int=INT | param=[BParameter|AtSignThenIdOrKeyword]);
 
 BIntOrStringOrParam:
-	( int=INT | text=STRING | param=[BParameter|AtSignThenIdOrKeyword])
-;
+	(int=INT | text=STRING | param=[BParameter|AtSignThenIdOrKeyword]);
 
 IdOrStringOrInt:
-	ID | 
+	ID |
 	INT |
-	STRING
-;
+	STRING;
 
-// ============================================================================
+	// ============================================================================
 // Implemented assertions   
 // ============================================================================
-
 BImplementationAssertion:
-    freeText=STRING
-;
+	freeText=STRING;
 
-
-BWidgetWrapper: 
-	widget=[uid::Widget|QualifiedName] widgetType=IdOrKeyword
-;
+BWidgetWrapper:
+	widget=[uid::Widget|QualifiedName] widgetType=IdOrKeyword;
 
 QualifiedName:
-	IdOrKeyword ('.' IdOrKeyword)*
-;
+	IdOrKeyword ('.' IdOrKeyword)*;
 
 QualifiedNameWithWildCard:
-	QualifiedName '.*'?
-;
+	QualifiedName '.*'?;
 
 NodeQName:
-	segment+=BIntOrStringOrParam ('>' segment+=BIntOrStringOrParam)*
-;
+	segment+=BIntOrStringOrParam ('>' segment+=BIntOrStringOrParam)*;
 
-// ============================================================================
+	// ============================================================================
 // Keyword sequences (datatype rules), content assist will be offered  
 // ============================================================================
-
 GivenIamOnThe:
-  'Given' 'I' 'am' 'on' 'the' 
-;
+	'Given' 'I' 'am' 'on' 'the';
 
 OnScreen:
-  'screen'
-;
+	'screen';
 
 OnTab:
-  'tab'
-;
+	'tab';
 
 AndI:
-  'and' 'I'	
-;
+	'and' 'I';
 
 WhenI:
-  'when' 'I'
-;
+	'when' 'I';
 
 ThenIAmOnThe:
-	'then' 'I'  'am' 'on' 'the' 
-;
+	'then' 'I' 'am' 'on' 'the';
 
 AndThe:
-	'and' 'the'
-;
+	'and' 'the';
 
 ThenIt:
-    'then' 'it'
-;
-
+	'then' 'it';
 
 ThenThe:
-	'then' 'the'
-;
+	'then' 'the';
 
 AsA:
-	'As' 'a' 
-;
+	'As' 'a';
 
 IwantTo:
-	'I' 'want' 'to' 
-;
+	'I' 'want' 'to';
 
 InOrderTo:
-	'In' 'order' 'to' 
-;
+	'In' 'order' 'to';
 
 FromThe:
-	'from' 'the'
-;
-
+	'from' 'the';
 
 FinallyICloseIt:
-    'finally' 'I' 'close' 'it'
-;
+	'finally' 'I' 'close' 'it';
+
 Where:
-	'where'
-;
+	'where';
 
 Contains:
-    'contains'
-;
+	'contains';
 
-IActivateTheNode:
-	'I' 'activate' 'the' 'node'
+WithValue:
+	'with' 'value'
 ;
+IActivateTheNode:
+	'I' 'activate' 'the' 'node';
 
 ActivateTheCell:
-	'activate' 'the' 'cell'
-;
+	'activate' 'the' 'cell';
 
 ActivateTheArea:
-	'activate' 'the' 'area'
-;
+	'activate' 'the' 'area';
 
 SelectTheEntry:
-	'select' 'the' 'entry' 
-;
+	'select' 'the' 'entry';
+
+SelectThe:
+	'select' 'the';
 
 SwitchToThe:
-	'switch' 'to' 'the'
-;
+	'switch' 'to' 'the';
 
 SelectedEntry:
-	'selected' 'entry' 
-;
+	'selected' 'entry';
 
 SelectedTabIs:
-	'selected' 'tab' 'is'
+	'selected' 'tab' 'is';
+TheDate:
+	'the' 'date'
 ;
-
 Matches:
-	'matches'
-;
+	'matches';
 
 Equals:
-	'equals'
-;
+	'equals';
 
 NotEquals:
-	'not' 'equals'
-;
+	'not' 'equals';
 
 IndexEquals:
-	'index' 'equals'
-;
-
-
+	'index' 'equals';
 
 IClick:
-	'I' 'click'
-;
-
+	'I' 'click';
 
 Click:
-	 'click'
-;
+	'click';
+
+ClickThe:
+	'click' 'the';
 
 ISelect:
-	'I' 'select'
-;
+	'I' 'select';
+
+Select:
+	'select';
+
 
 ISelectThe:
-	'I' 'select' 'the'
-;
+	'I' 'select' 'the';
 
 IType:
-	'I' 'type'
-;
+	'I' 'type';
+
+Type:
+	'type';
 
 CloseIt:
-	'close' 'it'
-;
+	'close' 'it';
 
 CellWhere:
-	'cell' 'where'
-;
+	'cell' 'where';
+
+TheCellWhere:
+	'the' 'cell' 'where';
 
 Column:
-	'column'
-;
+	'column';
 
 Row:
-	'row'
-;
+	'row';
 
 InThe:
- 'in' 'the'	
-;
+	'in' 'the';
 
 IDoubleClick:
-	'I' 'double' 'click'
-;
+	'I' 'double' 'click';
+
+DoubleClick:
+	'double' 'click';
+
+DoubleClickThe:
+	'double' 'click' 'the';
 
 ICheck:
-	'I' 'check'
-;
+	'I' 'check';
+
+Check:
+	'check';
 
 Is:
-	'is'
+	'is';
+In:
+	'in'
 ;
+
+No:
+	'no'
+;
+
+A:
+	'a'
+; 
+
 Not:
-	'not'
-;
+	'not';
 
 Property:
-	'property'
-;
+	'property';
 
-
-/** 
+	/** 
  * contains any keywords that are in the grammar and should be allowed in free text
  */
 Word:
- 	IdOrKeyword |
+	IdOrKeyword |
 	INT |
 	STRING |
 	ML_COMMENT |
 	SL_COMMENT |
-	ANY_OTHER
-;
+	ANY_OTHER;
 
 AtParam hidden():
-	'@' 'param'
-;
+	'@' 'param';
 
 AtDataProvider hidden():
-	'@' 'dataProvider'
-;
+	'@' 'dataProvider';
 
 AtDependsOn:
-	'@' 'dependsOn'
-;
+	'@' 'dependsOn';
 
 AtSignThenIdOrKeyword:
- '@' IdOrKeyword
-;
+	'@' IdOrKeyword;
 
 AtTagScreen:
- '@' 'tagScreen'
-;
+	'@' 'tagScreen';
 
 enum ValidKeysToPress:
-    ENTER|
-    SPACE|
-    TAB
-;
+	ENTER |
+	SPACE |
+	TAB;
 
-// rule for the generated Ecore model
+	// rule for the generated Ecore model
 enum TagModeEnum:
-    unspecified | // first literal is the default
-    TRUE |
-    FALSE
-;
+	unspecified | // first literal is the default
+	TRUE |
+	FALSE;
 
-// rule for the DSL editor
+	// rule for the DSL editor
 enum TagMode returns TagModeEnum:
-    TRUE |
-    FALSE
-;
+	TRUE |
+	FALSE;
 
-IdOrKeyword :
+IdOrKeyword:
 	ID |
-	Keyword
-;
+	Keyword;
 
 StringOrId:
-	ID | STRING
-;
+	ID | STRING;
 
 Keyword:
 	',' |
@@ -594,6 +513,7 @@ Keyword:
 	'names' |
 	'node' |
 	'not' |
+	'no' |
 	'on' |
 	'order' |
 	'package' |
@@ -615,28 +535,35 @@ Keyword:
 	'values' |
 	'want' |
 	'when' |
-	'where'
-;
+	'where';
 
-
-// ============================================================================
+	// ============================================================================
 // From the Xtext builtin Terminals grammar, changed WS and NL rules  
 // ============================================================================
+terminal ID:
+	'^'? ('a'..'z' | 'A'..'Z' | '_') ('a'..'z' | 'A'..'Z' | '_' | '0'..'9')*;
 
-terminal ID     : '^'?('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')*;
-terminal INT returns ecore::EInt: ('0'..'9')+;
-terminal STRING	: 
-			'"' ( '\\' ('b'|'t'|'n'|'f'|'r'|'u'|'"'|"'"|'\\') | !('\\'|'"') )* '"' |
-			"'" ( '\\' ('b'|'t'|'n'|'f'|'r'|'u'|'"'|"'"|'\\') | !('\\'|"'") )* "'"
-; 
-terminal ML_DOCUMENTATION: '/**' -> '*/' ;
-terminal ML_COMMENT : '/*' (!'*') -> '*/' ;
-terminal SL_COMMENT : '//' !('\n'|'\r')* ('\r'? '\n')?;
+terminal INT returns ecore::EInt:
+	('0'..'9')+;
 
-// original:
-terminal WS			: (' '|'\t'|'\r'|'\n')+;
-// change for TextToEol:
+terminal STRING:
+	'"' ('\\' ('b' | 't' | 'n' | 'f' | 'r' | 'u' | '"' | "'" | '\\') | !('\\' | '"'))* '"' |
+	"'" ('\\' ('b' | 't' | 'n' | 'f' | 'r' | 'u' | '"' | "'" | '\\') | !('\\' | "'"))* "'";
+
+terminal ML_DOCUMENTATION:
+	'/**'->'*/';
+
+terminal ML_COMMENT:
+	'/*' (!'*')->'*/';
+
+terminal SL_COMMENT:
+	'//' !('\n' | '\r')* ('\r'? '\n')?;
+
+	// original:
+terminal WS:
+	(' ' | '\t' | '\r' | '\n')+;
+	// change for TextToEol:
 //terminal WS       : (' '|'\t')+;
 //terminal NL       : ('\r'|'\n')+;
-
-terminal ANY_OTHER: .;
+terminal ANY_OTHER:
+	.;

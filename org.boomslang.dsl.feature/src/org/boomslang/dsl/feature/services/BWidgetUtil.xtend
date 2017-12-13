@@ -19,7 +19,9 @@ class BWidgetUtil {
 				result += att.name
 			}
 		}
-		return result
+		result+="empty"
+		result+="enabled"
+		return result.filter[!it.equals("locked")].toList
 	}
 	
 	/**

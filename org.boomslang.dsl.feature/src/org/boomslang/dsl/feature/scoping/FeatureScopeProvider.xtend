@@ -22,8 +22,6 @@ import java.util.ArrayList
 import org.boomslang.dsl.feature.feature.BToScreenSwitch
 import org.eclipse.xtext.resource.IEObjectDescription
 import com.wireframesketcher.model.Master
-import org.boomslang.dsl.feature.feature.BTabPaneSelectTabAction
-import org.boomslang.dsl.feature.feature.BTabAssertion
 import org.boomslang.dsl.feature.feature.BCommandComponent
 import com.wireframesketcher.model.TabbedPane
 import org.eclipse.xtext.scoping.Scopes
@@ -78,27 +76,27 @@ class FeatureScopeProvider extends AbstractDeclarativeScopeProvider {
 		allowElementsInItsBWidgetContainer(ctx, ref,EcoreUtil2.getContainerOfType(ctx, BScenario).BToScreenSwitch.screen)
 	}
 	
-	/**
-	 * This method is used in the tab select
-	 */
-	def IScope scope_BTabItemWrapper_tabItem(BTabPaneSelectTabAction ctx, EReference ref) {
-		val cmd = ctx.eContainer as BCommandComponent
-		val tabbedPane = cmd.widget.widget as TabbedPane
-		val tabItems = tabbedPane.items as Iterable<Item>
-		val scope = Scopes.scopeFor(tabItems, [item|item.simpleName], IScope.NULLSCOPE)
-		return scope
-	}
+//	/**
+//	 * This method is used in the tab select
+//	 */
+//	def IScope scope_BTabItemWrapper_tabItem(BTabPaneSelectTabAction ctx, EReference ref) {
+//		val cmd = ctx.eContainer as BCommandComponent
+//		//val tabbedPane = cmd.widget.widget as TabbedPane
+//		//val tabItems = tabbedPane.items as Iterable<Item>
+////		val scope = Scopes.scopeFor(tabItems, [item|item.simpleName], IScope.NULLSCOPE)
+//		return IScope.NULLSCOPE
+//	}
 
-	/**
-	 * This method is used for tab assertion
-	 */
-	def IScope scope_BTabItemWrapper_tabItem(BTabAssertion ctx, EReference ref) {
-		val cmd = ctx.eContainer as BAssertionComponent
-		val tabbedPane = cmd.widget.widget as TabbedPane
-		val tabItems = tabbedPane.items as Iterable<Item>
-		val scope = Scopes.scopeFor(tabItems, [item|item.simpleName], IScope.NULLSCOPE)
-		return scope
-	}
+//	/**
+//	 * This method is used for tab assertion
+//	 */
+//	def IScope scope_BTabItemWrapper_tabItem(BTabAssertion ctx, EReference ref) {
+//		val cmd = ctx.eContainer as BAssertionComponent
+//		val tabbedPane = cmd.widget.widget as TabbedPane
+//		val tabItems = tabbedPane.items as Iterable<Item>
+//		val scope = Scopes.scopeFor(tabItems, [item|item.simpleName], IScope.NULLSCOPE)
+//		return scope
+//	}
 
 	def IScope scope_BToScreenSwitch_componentScreen(BToScreenSwitch ctx, EReference ref) {
 	    val originalScope = delegateGetScope(ctx, ref)

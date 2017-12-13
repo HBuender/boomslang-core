@@ -44,7 +44,7 @@ public class BGeneratorContributionHandler {
 //        val ss = FeatureActivator.instance.preferenceStore
         
         val store = new ScopedPreferenceStore(InstanceScope.INSTANCE, "org.boomslang.dsl.feature.ui")
-        val ss =  store.getString('generatorSwitch')
+        //val ss =  store.getString('generatorSwitch')
         val root = Platform.getPreferencesService().rootNode
         val prefs = InstanceScope.INSTANCE.getNode("org.boomslang.dsl.feature.Feature");
         val value = prefs.get('generatorSwitch', '')

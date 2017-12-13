@@ -31,4 +31,5 @@ import com.google.inject.name.Names
 	override Class<? extends org.eclipse.xtext.naming.IQualifiedNameProvider> bindIQualifiedNameProvider() {
 		return FeatureQualifiedNameProvider;
 	}
+	
 }

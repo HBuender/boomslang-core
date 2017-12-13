@@ -104,7 +104,7 @@ class FeatureValidator extends AbstractFeatureValidator {
 //    
     @Check
     def void checkScenarioNameConstraint(BScenario bScenario){
-        if (!bScenario.name.matches("\\\"[a-zA-Z0-9\\s]*\\\"")){
+        if (!bScenario.name.matches("\\\"[A-Za-z0-9\\s]*\\\"")){
             warning("Scenario name "+bScenario.name+" contains invalid characters. Only characters, numbers, and whitespaces are allowed",bScenario,FeaturePackage.Literals.BSCENARIO__NAME,SCENARIO_NAME_VALID)
          }
     }

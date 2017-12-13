@@ -13,5 +13,5 @@ Feature ScreenSwitch
 	
 	Scenario "Hit all elements on the screen"
 		Given I am on the WidgetGroupInWidgetGroup screen
-		when I I click from the Yes button  
+		when I click the Yes button  
 		

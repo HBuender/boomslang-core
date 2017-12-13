@@ -73,6 +73,8 @@ Workflow {
             fragment = serializer.SerializerFragment2  {
                 generateStub = false
             }
+            
+            fragment = formatting.Formatter2Fragment2{}
 		}
 	}
 }

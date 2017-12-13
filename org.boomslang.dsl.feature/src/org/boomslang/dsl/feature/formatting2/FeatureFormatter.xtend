@@ -13,9 +13,11 @@ import org.eclipse.xtext.formatting2.AbstractFormatter2
 import org.eclipse.xtext.formatting2.IFormattableDocument
 
 class FeatureFormatter extends AbstractFormatter2 {
-	
+	 
 	@Inject extension FeatureGrammarAccess
 
+	
+	
 	def dispatch void format(BFeaturePackage bFeaturePackage, extension IFormattableDocument document) {
 		// TODO: format HiddenRegions around keywords, attributes, cross references, etc. 
 		
@@ -33,6 +35,14 @@ class FeatureFormatter extends AbstractFormatter2 {
 		for (BScenario scenarios : bFeature.getScenarios()) {
 			scenarios.format;
 		}
+	}
+	
+	def dispatch void format (BScenario bScenario,extension IFormattableDocument document){
+		bScenario.interior[indent]
+//		bScenario.regionFor.keyword("Given").prepend[newLine]
+//		bScenario.regionFor.keyword("When").prepend[newLine]
+//		bScenario.regionFor.keyword("And").prepend[newLine]
+//		bScenario.regionFor.keyword("Then").prepend[newLine]
 	}
 	
 	// TODO: implement for BScenario, BListSelectNamesCommand, BListSelectValuesCommand, BListSelectIndicesCommand, BDoubleClickCommand, BTableCommand, BTypeCommand, BTabPaneSelectTabCommand, BTreeCommand, BContextMenuCommand, BAccordionCommand, BScreenshotAssertion, BWidgetWrapperList, BListSelectionByNamesAssertion, BListSelectionByValuesAssertion, BListSelectionByIndicesAssertion, BListContainsByNamesAssertion, BListContainsByIndicesAssertion, BListContainsByValuesAssertion, BTableRowColAssertion, BTableHeaderAssertion, BTreeAssertion, NodeQName, BTabAssertion, BBooleanPropertyAssertion, BPropertyEqualsAssertion, BTextEqualsAssertion, BTextContainsAsssertion

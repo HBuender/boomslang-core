@@ -153,7 +153,7 @@ class WidgetTypeRefUtil {
 
 	def getWidgetTypesOnScreen(EObject it) {
 		val screen = getContextInfoOfNearestContext.widgetContainer
-		val types = newArrayList
+		val types = newHashSet
 		screen.widgets.forEach [ w |
 			if (w instanceof ClickSupport) {
 				types += ("ClickSupport")
@@ -165,7 +165,9 @@ class WidgetTypeRefUtil {
 				types += ("TextInputSupport")
 			}
 			if (w instanceof BooleanSelectionSupport) {
-				types += ("TextInputSupport")
+				types += ("BooleanSelectionSupport")
+			}if (w instanceof SelectionSupport) {
+				types += ("SelectionSupport")
 			}
 		]
 		return types
