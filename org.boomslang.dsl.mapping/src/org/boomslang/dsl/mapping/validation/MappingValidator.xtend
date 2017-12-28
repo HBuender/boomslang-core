@@ -41,7 +41,7 @@ class MappingValidator extends AbstractMappingValidator {
     
     @Check
     def checkForWidgetsWithSameName(BMapping mapping){
-        mapping.screen.widgets.forEach [
+        mapping.screen.widgets.filter[!name.nullOrEmpty].forEach [
             if(isDuplicate){
             warning("Widget " + it.name +" "+it.type+ " exists multiple times with the same name and type", mapping, MappingPackage.Literals.BMAPPING__SCREEN,
                     UNIQUE_CONSTRAINT_VIOLATION, it.name + ";" + it.type)

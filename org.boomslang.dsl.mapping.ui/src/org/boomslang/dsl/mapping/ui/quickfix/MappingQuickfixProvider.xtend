@@ -54,9 +54,7 @@ class MappingQuickfixProvider extends DefaultQuickfixProvider {
                     mapping.BWidgetMapping.add(mapping.BWidgetMapping.size,
                         MappingFactory::eINSTANCE.createBWidgetMapping => [
                             widget = locatedWidget.get(0)
-                            locator = MappingFactory::eINSTANCE.createMStringLiteral => [
-                                value = "replaceWithTheCorrectId"
-                            ]
+                            locator =  "replaceWithTheCorrectId"
                         ])
                 }
             ])

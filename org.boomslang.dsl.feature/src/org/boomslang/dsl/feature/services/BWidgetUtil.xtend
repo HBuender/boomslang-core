@@ -21,6 +21,7 @@ class BWidgetUtil {
 		}
 		result+="empty"
 		result+="enabled"
+		result+="selected"
 		return result.filter[!it.equals("locked")].toList
 	}
 	

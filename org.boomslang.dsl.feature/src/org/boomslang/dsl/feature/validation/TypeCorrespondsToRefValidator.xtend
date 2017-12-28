@@ -34,10 +34,10 @@ class TypeCorrespondsToRefValidator extends AbstractDeclarativeValidator {
 	 */
 	public static val WRONG_TYPENAME = "WRONG_TYPENAME"
 
-	@Check
-	def checkTypeCorrespondsToRef(BWidgetWrapper it) {
-		it.checkTypeCorrespondsToRef(BWIDGET_WRAPPER__WIDGET, BWIDGET_WRAPPER__WIDGET_TYPE)
-	}
+//	@Check
+//	def checkTypeCorrespondsToRef(BWidgetWrapper it) {
+//		it.checkTypeCorrespondsToRef(BWIDGET_WRAPPER__WIDGET, BWIDGET_WRAPPER__WIDGET_TYPE)
+//	}
 
 	/**
 	 * The requirements for the DSL included a redundant
@@ -58,14 +58,15 @@ class TypeCorrespondsToRefValidator extends AbstractDeclarativeValidator {
 	 * 
 	 * @param widgetTypeNameRef - the type name, it is expected to be of type EString 
 	 */
-	def checkTypeCorrespondsToRef(EObject dslObject, EReference widgetERef, EAttribute widgetTypeNameERef) {
-		val wireframeElementName = dslObject.getReferencedNameSupportName(widgetERef) 
-		val wireframeElementTypeName = dslObject.getReferencedNameSupportTypeName(widgetERef)
-		val typeNameInDsl = dslObject.getStringAttribute(widgetTypeNameERef)
-		if (typeNameInDsl != wireframeElementTypeName) {
-			error(
-				'''�wireframeElementName� is a '�wireframeElementTypeName�', but the text says it is a '�typeNameInDsl.
-					nullToEmpty�'��''', widgetTypeNameERef, WRONG_TYPENAME, wireframeElementTypeName)
-		}
-	}
+//	def checkTypeCorrespondsToRef(EObject dslObject, EReference widgetERef, EAttribute widgetTypeNameERef) {
+//		
+//		val wireframeElementName = dslObject.getReferencedNameSupportName(widgetERef) 
+//		val wireframeElementTypeName = dslObject.getReferencedNameSupportTypeName(widgetERef)
+//		val typeNameInDsl = dslObject.getStringAttribute(widgetTypeNameERef)
+//		if (typeNameInDsl != wireframeElementTypeName) {
+//			error(
+//				'''«wireframeElementName» is a '«wireframeElementTypeName»', but the text says it is a '"typeNameInDsl.
+//					nullToEmpty'"''', widgetTypeNameERef, WRONG_TYPENAME, wireframeElementTypeName)
+//		}
+//	}
 }

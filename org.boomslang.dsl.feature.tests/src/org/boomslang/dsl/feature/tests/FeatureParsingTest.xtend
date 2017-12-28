@@ -41,97 +41,97 @@ class FeatureParsingTest extends AbstractXtextTests{
 		assertTrue(issues.get(0).message.contains("mismatched input '<EOF>' expecting"))
 	}
 	
-	@Test
-	def void testFormsSimpleReferences(){
-		xtextResourceSet.loadScreen("screen/Simple.screen")
-		'feature/samples/Simple.feature'.readFileIntoString().parse(xtextResourceSet).assertNoErrors
-	}
+//	@Test
+//	def void testFormsSimpleReferences(){
+//		xtextResourceSet.loadScreen("screen/Simple.screen")
+//		'feature/samples/Simple.feature'.readFileIntoString().parse(xtextResourceSet).assertNoErrors
+//	}
+//	
+//	@Test
+//	def void testFormsInComponentReferences(){
+//		xtextResourceSet.loadScreen("SimpleComponent.screen")
+//		'feature/samples/SimpleComponent.feature'.readFileIntoString().parse(xtextResourceSet).assertNoErrors
+//	}
 	
-	@Test
-	def void testFormsInComponentReferences(){
-		xtextResourceSet.loadScreen("SimpleComponent.screen")
-		'feature/samples/SimpleComponent.feature'.readFileIntoString().parse(xtextResourceSet).assertNoErrors
-	}
-	
-	@Test
-	def void testFormsInReusedComponentReferences(){
-		xtextResourceSet.loadScreen("SimpleComponent.screen")
-		xtextResourceSet.loadScreen("screen/UseSimpleComponent.screen")
-		'feature/samples/UseSimpleComponent.feature'.readFileIntoString().parse(xtextResourceSet).assertNoErrors
-	}
-	
-	@Test
-	def void testFormsInMultipleReusedComponentsReferences(){
-		xtextResourceSet.loadScreen("SimpleComponent.screen")
-		xtextResourceSet.loadScreen("SimpleContactComponent.screen")
-		xtextResourceSet.loadScreen("screen/MultiComponent.screen")
-		'feature/samples/MultiComponent.feature'.readFileIntoString().parse(xtextResourceSet).assertNoErrors
-	}
-	
-	@Test
-	def void testFormsInMultipleReusedComponentsWithOwnWidgetsReferences(){
-		xtextResourceSet.loadScreen("SimpleComponent.screen")
-		xtextResourceSet.loadScreen("SimpleContactComponent.screen")
-		xtextResourceSet.loadScreen("screen/MultiComponentWithOwnWidgets.screen")
-		'feature/samples/MultiComponentWithOwnWidgets.feature'.readFileIntoString().parse(xtextResourceSet).assertNoErrors
-	}
-	
-	@Test
-	def void testFormsInMultiWidgetGroups(){
-		xtextResourceSet.loadScreen("screen/MultiWidgetGroups.screen")
-		'feature/samples/MultiWidgetGroups.feature'.readFileIntoString().parse(xtextResourceSet).assertNoErrors
-	}
-	
-	@Test
-	def void testFormsInRecursiveWidgetGroups(){
-		xtextResourceSet.loadScreen("screen/WidgetGroupInWidgetGroup.screen")
-		'feature/samples/WidgetGroupInWidgetGroup.feature'.readFileIntoString().parse(xtextResourceSet).assertNoErrors
-	}
-	
-	@Test
-	def void testThenIAmOnTheSwitch(){
-		xtextResourceSet.loadScreen("screen/WidgetGroupInWidgetGroup.screen")
-		xtextResourceSet.loadScreen("SimpleComponent.screen")
-		xtextResourceSet.loadScreen("screen/MultiComponent.screen")
-		xtextResourceSet.loadScreen("screen/Simple.screen")
-		xtextResourceSet.loadScreen("SimpleContactComponent.screen")
-		'feature/samples/ScreenSwitch.feature'.readFileIntoString().parse(xtextResourceSet).assertNoErrors
-	}
-	
-	@Test
-	def void testTableActionsWithParameter(){
-		xtextResourceSet.loadScreen("screen/Simple.screen")
-		'feature/samples/Table.feature'.readFileIntoString().parse(xtextResourceSet).assertNoErrors
-	}
-	
-		
-	@Test
-	def void testAssertionCommands(){
-		xtextResourceSet.loadScreen("screen/Simple.screen")
-		'feature/samples/AssertionActions.feature'.readFileIntoString().parse(xtextResourceSet).assertNoErrors
-	}
-	
-	
-	// Tests with tabbed panes and tabs
-	
-	@Test
-	def void testTabbedPaneActions(){
-		xtextResourceSet.loadScreen("TabbedPaneComp.screen")
-		xtextResourceSet.loadScreen("TabbedPaneComponent2.screen")
-		xtextResourceSet.loadScreen("screen/parts/simple/SimpleTab1.screen")
-		xtextResourceSet.loadScreen("screen/parts/simple/SimpleTab2.screen")
-		xtextResourceSet.loadScreen("screen/parts/simple2/SimpleTab1.screen")
-		xtextResourceSet.loadScreen("screen/parts/simple2/SimpleTab2.screen")
-		'feature/samples/TabbedPane.feature'.readFileIntoString().parse(xtextResourceSet).assertNoErrors
-	}
-	 	
-	@Test
-	def void testTabbedPaneInWidgetGroupActions(){
-		xtextResourceSet.loadScreen("TabbedPaneInWidgetGroupComp.screen")
-		xtextResourceSet.loadScreen("screen/parts/tabbedpaneingroup/FirstTab.screen")
-		xtextResourceSet.loadScreen("screen/parts/tabbedpaneingroup/SecondTab.screen")
-		'feature/samples/TabbedPaneInWidgetGroup.feature'.readFileIntoString().parse(xtextResourceSet).assertNoErrors
-	} 
+//	@Test
+//	def void testFormsInReusedComponentReferences(){
+//		xtextResourceSet.loadScreen("SimpleComponent.screen")
+//		xtextResourceSet.loadScreen("screen/UseSimpleComponent.screen")
+//		'feature/samples/UseSimpleComponent.feature'.readFileIntoString().parse(xtextResourceSet).assertNoErrors
+//	}
+//	
+//	@Test
+//	def void testFormsInMultipleReusedComponentsReferences(){
+//		xtextResourceSet.loadScreen("SimpleComponent.screen")
+//		xtextResourceSet.loadScreen("SimpleContactComponent.screen")
+//		xtextResourceSet.loadScreen("screen/MultiComponent.screen")
+//		'feature/samples/MultiComponent.feature'.readFileIntoString().parse(xtextResourceSet).assertNoErrors
+//	}
+//	
+//	@Test
+//	def void testFormsInMultipleReusedComponentsWithOwnWidgetsReferences(){
+//		xtextResourceSet.loadScreen("SimpleComponent.screen")
+//		xtextResourceSet.loadScreen("SimpleContactComponent.screen")
+//		xtextResourceSet.loadScreen("screen/MultiComponentWithOwnWidgets.screen")
+//		'feature/samples/MultiComponentWithOwnWidgets.feature'.readFileIntoString().parse(xtextResourceSet).assertNoErrors
+//	}
+//	
+//	@Test
+//	def void testFormsInMultiWidgetGroups(){
+//		xtextResourceSet.loadScreen("screen/MultiWidgetGroups.screen")
+//		'feature/samples/MultiWidgetGroups.feature'.readFileIntoString().parse(xtextResourceSet).assertNoErrors
+//	}
+//	
+//	@Test
+//	def void testFormsInRecursiveWidgetGroups(){
+//		xtextResourceSet.loadScreen("screen/WidgetGroupInWidgetGroup.screen")
+//		'feature/samples/WidgetGroupInWidgetGroup.feature'.readFileIntoString().parse(xtextResourceSet).assertNoErrors
+//	}
+//	
+//	@Test
+//	def void testThenIAmOnTheSwitch(){
+//		xtextResourceSet.loadScreen("screen/WidgetGroupInWidgetGroup.screen")
+//		xtextResourceSet.loadScreen("SimpleComponent.screen")
+//		xtextResourceSet.loadScreen("screen/MultiComponent.screen")
+//		xtextResourceSet.loadScreen("screen/Simple.screen")
+//		xtextResourceSet.loadScreen("SimpleContactComponent.screen")
+//		'feature/samples/ScreenSwitch.feature'.readFileIntoString().parse(xtextResourceSet).assertNoErrors
+//	}
+//	
+////	@Test
+////	def void testTableActionsWithParameter(){
+////		xtextResourceSet.loadScreen("screen/Simple.screen")
+////		'feature/samples/Table.feature'.readFileIntoString().parse(xtextResourceSet).assertNoErrors
+////	}
+//	
+//		
+//	@Test
+//	def void testAssertionCommands(){
+//		xtextResourceSet.loadScreen("screen/Simple.screen")
+//		'feature/samples/AssertionActions.feature'.readFileIntoString().parse(xtextResourceSet).assertNoErrors
+//	}
+//	
+//	
+//	// Tests with tabbed panes and tabs
+//	
+//	@Test
+//	def void testTabbedPaneActions(){
+//		xtextResourceSet.loadScreen("TabbedPaneComp.screen")
+//		xtextResourceSet.loadScreen("TabbedPaneComponent2.screen")
+//		xtextResourceSet.loadScreen("screen/parts/simple/SimpleTab1.screen")
+//		xtextResourceSet.loadScreen("screen/parts/simple/SimpleTab2.screen")
+//		xtextResourceSet.loadScreen("screen/parts/simple2/SimpleTab1.screen")
+//		xtextResourceSet.loadScreen("screen/parts/simple2/SimpleTab2.screen")
+//		'feature/samples/TabbedPane.feature'.readFileIntoString().parse(xtextResourceSet).assertNoErrors
+//	}
+//	 	
+//	@Test
+//	def void testTabbedPaneInWidgetGroupActions(){
+//		xtextResourceSet.loadScreen("TabbedPaneInWidgetGroupComp.screen")
+//		xtextResourceSet.loadScreen("screen/parts/tabbedpaneingroup/FirstTab.screen")
+//		xtextResourceSet.loadScreen("screen/parts/tabbedpaneingroup/SecondTab.screen")
+//		'feature/samples/TabbedPaneInWidgetGroup.feature'.readFileIntoString().parse(xtextResourceSet).assertNoErrors
+//	} 
 
 	
 	/**

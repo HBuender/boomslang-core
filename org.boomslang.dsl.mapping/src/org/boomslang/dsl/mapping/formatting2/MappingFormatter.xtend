@@ -3,11 +3,10 @@
  */
 package org.boomslang.dsl.mapping.formatting2
 
+import com.google.inject.Inject
 import org.boomslang.core.BImport
 import org.boomslang.dsl.mapping.mapping.BMappingPackage
-import org.boomslang.dsl.mapping.mapping.BVariable
 import org.boomslang.dsl.mapping.services.MappingGrammarAccess
-import com.google.inject.Inject
 import org.eclipse.xtext.formatting2.AbstractFormatter2
 import org.eclipse.xtext.formatting2.IFormattableDocument
 
@@ -20,16 +19,9 @@ class MappingFormatter extends AbstractFormatter2 {
 		for (BImport bImports : bMappingPackage.getBImports()) {
 			bImports.format;
 		}
-		for (BVariable bVariables : bMappingPackage.getBVariables()) {
-			bVariables.format;
-		}
 		bMappingPackage.getBMapping.format;
 	}
 
-	def dispatch void format(BVariable bVariable, extension IFormattableDocument document) {
-		// TODO: format HiddenRegions around keywords, attributes, cross references, etc. 
-		bVariable.getExpression.format;
-	}
 	
 	// TODO: implement for BMapping, BUrl, BLabel, BId, BTabItemMapping, BWidgetMapping, BooleanExpression, ComparisonExpression, EqualityExpression, NotExpression, MExpression, MNlsMultiLangExpr, BNlsLangDecl
 }

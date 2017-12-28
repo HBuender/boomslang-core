@@ -26,6 +26,7 @@ BFeature:
 	(AtTagScreen tagScreenMode=TagMode?)?
 	'Feature' name=ID
 	background=BBackground
+	'Tester' testerID=ID
 	(scenarios+=BScenario)*;
 
 BBackground:
@@ -79,7 +80,7 @@ BAssertionComponent:
 // Command Actions   
 // ============================================================================
 BCommandAction:
-	BClickAction | BSelectAction | BTypeAction | BDoubleClickAction | BCheckAction
+	BClickAction | BSelectAction | BTypeAction | BDoubleClickAction | BCheckAction |BMenuSelectAction
 	//	| BTabPaneSelectTabAction
 	//	| BTreeAction
 //	| BCloseAction
@@ -87,11 +88,22 @@ BCommandAction:
 
 BClickAction:
 	{BClickAction}
-	ClickThe ((bTableSelectParameter=BTableSelectParameter | bTileParameter=BTileParameter) FromThe)?;
+	ClickThe ((bTableSelectParameter=BTableSelectParameter | bTileParameter=BTileParameter | bPopupEntry=BPopupEntry) FromThe)?;
 
 BSelectAction:
 	{BSelectAction}
 	 (Select selectParameter=BSelectParameter |SelectThe bTableSelectParameter=BTableSelectParameter |Select bDateSelectParameter=BDateSelectParameter) FromThe;
+
+BPopupEntry:
+	{BPopupEntry}
+	popupEntry=STRING
+;
+
+BMenuSelectAction:
+	{BMenuSelectAction}
+	SelectThe entryName=STRING FromThe
+;
+
 
 BTypeAction:
 	{BTypeAction}
@@ -99,8 +111,8 @@ BTypeAction:
 
 BDoubleClickAction:
 	{BDoubleClickAction}
-	(DoubleClickThe (bTableSelectParameter=BTableSelectParameter | bTileParameter=BTileParameter) FromThe) |{BDoubleClickAction}
-	DoubleClickThe;
+	(DoubleClickThe (bTableSelectParameter=BTableSelectParameter | bTileParameter=BTileParameter|bSelectParameter=BSelectParameter) FromThe) |{BDoubleClickAction}
+	DoubleClickThe; 
 
 BCheckAction:
 	{BCheckAction}
@@ -150,10 +162,11 @@ BPropertyAssertionAction:
 	Property propertyName=ID operator=BCompareOperator value=BIntOrStringOrParam;
 
 BBooleanAssertionAction:
-	Is booleanPropertyNotTrue?=Not? booleanPropertyName=ID;
+	{BBooleanAssertionAction}
+	Is (booleanPropertyNotTrue?=Not)? booleanPropertyName=ID;
 	// Make multiple values selectable for e.g. lists
 BContainsAssertionAction:
-	Contains ((No|A) bTableSelectParameter=BTableSelectParameter WithValue)? value=BIntOrStringOrParam;
+	Contains ((No|A|An) (bTableSelectParameter=BTableSelectParameter WithValue operator=BCompareOperator|Entry))? value=BIntOrStringOrParam;
 
 BSelectionAssertionAction:
 	SelectedEntry operator=BCompareOperator value=BIntOrStringOrParam;
@@ -181,14 +194,15 @@ BSelectParameter:
 BListSelectParameter:
 	BSelectNamesParameter | BSelectValuesParameter | BSelectIndicesParameter;
 	//TODO Convert names, values, indices to parser rules
+
 BSelectNamesParameter:
-	'names' parameters+=BIntOrStringOrParam (',' parameters+=BIntOrStringOrParam)*;
+	'name' parameters+=BIntOrStringOrParam (',' parameters+=BIntOrStringOrParam)*;
 
 BSelectValuesParameter:
-	'values' parameters+=BIntOrStringOrParam (',' parameters+=BIntOrStringOrParam)*;
+	'value' parameters+=BIntOrStringOrParam (',' parameters+=BIntOrStringOrParam)*;
 
 BSelectIndicesParameter:
-	'indices' parameters+=BIntOrParam (',' parameters+=BIntOrParam)*;
+	'indice' parameters+=BIntOrParam (',' parameters+=BIntOrParam)*;
 
 	// ============================================================================
 // Table Parameter   
@@ -415,8 +429,17 @@ No:
 	'no'
 ;
 
+Entry:
+	'entry'
+;
+
+
 A:
 	'a'
+;
+
+An:
+	'an'
 ; 
 
 Not:

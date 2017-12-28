@@ -54,6 +54,9 @@ import org.boomslang.dsl.feature.feature.BTypeAction
 import org.boomslang.dsl.feature.feature.BSelectAction
 import org.boomslang.dsl.feature.feature.BDoubleClickAction
 import org.boomslang.dsl.feature.feature.BCheckAction
+import org.boomslang.dsl.feature.feature.BMenuSelectAction
+import com.wireframesketcher.model.Menu
+import com.wireframesketcher.model.Popup
 
 /**
  * see http://www.eclipse.org/Xtext/documentation.html#contentAssist on how to customize content assistant
@@ -372,10 +375,9 @@ class FeatureProposalProvider extends AbstractFeatureProposalProvider {
 	}
 
 	override complete_TheDate(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		val proposal = createCompletionProposal("the date \"\"", "the date \"\"", null, context) as ConfigurableCompletionProposal
+		val proposal = createCompletionProposal('''the date ""''', '''the date ""''', null, context) as ConfigurableCompletionProposal
 		proposal.cursorPosition=10
 		acceptor.accept(proposal)
-		//theDateAccess.group.createKeywordProposal(context, acceptor)
 	}
 
 	override complete_Equals(EObject model, RuleCall ruleCall, ContentAssistContext context,
@@ -415,6 +417,7 @@ class FeatureProposalProvider extends AbstractFeatureProposalProvider {
 		proposal.cursorPosition = 1
 		acceptor.accept(proposal)
 	}
+	
 
 //    override completeBTabItemWrapper_TabItem(EObject model, Assignment assignment, ContentAssistContext context,
 //        ICompletionProposalAcceptor acceptor) {
@@ -442,6 +445,10 @@ class FeatureProposalProvider extends AbstractFeatureProposalProvider {
 	override complete_In(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		acceptor.accept(createCompletionProposal("in ", "in", null, context))
 	}
+	
+	override complete_Entry(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		acceptor.accept(createCompletionProposal("entry ", "entry", null, context))
+	}
 
 	override completeBToScreenSwitch_Screen(EObject model, Assignment assignment, ContentAssistContext context,
 		ICompletionProposalAcceptor acceptor) {
@@ -451,6 +458,35 @@ class FeatureProposalProvider extends AbstractFeatureProposalProvider {
 	override complete_FinallyICloseIt(EObject model, RuleCall ruleCall, ContentAssistContext context,
 		ICompletionProposalAcceptor acceptor) {
 		finallyICloseItAccess.group.createKeywordProposal(context, acceptor)
+	}
+	
+	override completeBFeature_TesterID(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		acceptor.accept(createCompletionProposal("Tester ", "Tester", null, context))
+	}
+	
+//	override complete_STRING(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+//		val proposal = (createCompletionProposal('''""''' , '''""''', null, context)) as ConfigurableCompletionProposal
+//		proposal.cursorPosition = 1
+//		acceptor.accept(proposal)
+//	}
+	
+	override completeBMenuSelectAction_EntryName(EObject it, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		val screen = getScreenBeforeOffset(context)
+		screen.widgets.filter(Menu).forEach[menu|
+			menu.text.replace("&","").split(",").forEach[menuEntry|
+				acceptor.accept(createCompletionProposal('''"«menuEntry»" ''', '''«menuEntry»''', null, context))
+			]
+		]
+		
+	}
+	
+	override completeBPopupEntry_PopupEntry(EObject it, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		val screen = getScreenBeforeOffset(context)
+		screen.widgets.filter(Popup).forEach[popup|
+			popup.text.split("\n").filter[entry|!entry.startsWith("-")].forEach[validEntry|
+				acceptor.accept(createCompletionProposal('''"«validEntry.replace("~","").replace("\r","")»" ''', '''«popup.fullyQualifiedName.lastSegment» - «validEntry.replace("~","")»''', null, context))
+			]
+		]
 	}
 
 	/**
@@ -504,15 +540,17 @@ class FeatureProposalProvider extends AbstractFeatureProposalProvider {
 		val scopeAllElements = scope.allElements
 		val allowedWigetClasses = if (model instanceof BCommandComponent) {
 				if (model.action instanceof BClickAction) {
-					newArrayList("Button")
+					newArrayList("Button","Popup")
 				} else if (model.action instanceof BTypeAction) {
 					newArrayList("TextField","TextArea")
 				} else if (model.action instanceof BSelectAction) {
-					newArrayList("Table", "List", "Combobox","DateField")
+					newArrayList("Table", "List", "Combo","DateField")
 				} else if (model.action instanceof BDoubleClickAction) {
 					newArrayList("Table", "List")
 				} else if (model.action instanceof BCheckAction) {
-					newArrayList("Combobox")
+					newArrayList("Combo","RadioButton")
+				}else if (model.action instanceof BMenuSelectAction) {
+					newArrayList("Menu")
 				}
 			} else {
 				emptyList

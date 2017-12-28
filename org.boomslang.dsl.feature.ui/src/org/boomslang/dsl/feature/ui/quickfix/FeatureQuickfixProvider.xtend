@@ -168,9 +168,8 @@ class FeatureQuickfixProvider extends DefaultQuickfixProvider {
                                     bMappingPackage.BMapping.BWidgetMapping.add(bMappingPackage.BMapping.BWidgetMapping.size,
                                     MappingFactory::eINSTANCE.createBWidgetMapping => [
                                         widget = locatedWidget.get(0)
-                                        locator = MappingFactory::eINSTANCE.createMStringLiteral => [
-                                            value = "replaceWithTheCorrextId"
-                                        ]
+                                        locator = "replaceWithTheCorrextId"
+                                        
                                     ])
                                 }
                                 

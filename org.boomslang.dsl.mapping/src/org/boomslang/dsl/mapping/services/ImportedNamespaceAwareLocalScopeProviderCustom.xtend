@@ -22,6 +22,7 @@ class ImportedNamespaceAwareLocalScopeProviderCustom extends ImportedNamespaceAw
 				addWildcardImportFromSameNamespace(context, importedNamespaceResolvers, ignoreCase)
 			BWidgetMapping:
 				addNamespace(context, importedNamespaceResolvers, ignoreCase)
+			
 		}
 		return importedNamespaceResolvers
 	}

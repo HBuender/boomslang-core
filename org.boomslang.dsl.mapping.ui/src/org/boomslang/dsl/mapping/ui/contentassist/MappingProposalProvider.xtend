@@ -3,7 +3,7 @@
  */
 package org.boomslang.dsl.mapping.ui.contentassist
 
-import org.boomslang.core.contentassist.CoreProposalProvider 
+import org.boomslang.core.contentassist.CoreProposalProvider
 import org.boomslang.dsl.mapping.mapping.BMapping
 import org.boomslang.dsl.mapping.mapping.BWidgetMapping
 import org.boomslang.dsl.mapping.services.MappingGrammarAccess
@@ -24,6 +24,7 @@ import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
 
 import static extension org.eclipse.xtext.EcoreUtil2.*
+import org.eclipse.xtext.ui.editor.contentassist.ConfigurableCompletionProposal
 
 /**
  * see http://www.eclipse.org/Xtext/documentation.html#contentAssist on how to customize content assistant
@@ -31,103 +32,200 @@ import static extension org.eclipse.xtext.EcoreUtil2.*
 class MappingProposalProvider extends AbstractMappingProposalProvider {
 
 	@Inject extension IQualifiedNameProvider
-	
+
 	@Inject extension MappingGrammarAccess
-	
+
 	@Inject extension CoreProposalProvider
+	
+	@Inject ImportReplacementTextApplier importReplacementTextApplier
 
 //	override completeBMapping_BWidgetMapping(EObject model, Assignment assignment, ContentAssistContext context,
 //		ICompletionProposalAcceptor acceptor) {
 //	}
 //
-
-    override completeBMappingPackage_Name(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-        val packageName = model.completeBPackage_Name()
-        acceptor.accept(createCompletionProposal(packageName,packageName, null, context))
-    }
-	override complete_BWidgetMapping(EObject model, RuleCall ruleCall, ContentAssistContext context,
+	override completeBMappingPackage_Name(EObject model, Assignment assignment, ContentAssistContext context,
 		ICompletionProposalAcceptor acceptor) {
-		    println("asd")
+		val packageName = model.completeBPackage_Name()
+		acceptor.accept(createCompletionProposal(packageName, packageName, null, context))
+	}
+	
+	override complete_STRING(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		//null implement
 	}
 
 	override public void completeBWidgetMapping_Widget(EObject model, Assignment assignment,
 		ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		addProposalsForWidget(model, assignment, context, acceptor)
 	}
-	
-	
-	override complete_ComboButtonLocator(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor){
-        if(isComboMapping(model)){
-           comboButtonLocatorAccess.group.createKeywordProposal(context, acceptor)
-        }
-    }
-    
-    override complete_ComboTableLocator(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor){
-        if(isComboMapping(model)){
-            comboTableLocatorAccess.group.createKeywordProposal(context,acceptor)
-        }
-    }
-    
-    def private isComboMapping(EObject model){
-        switch model{
-            BWidgetMapping: return (model.widget instanceof Combo)
-        }
-    }
 
-	def addProposalsForWidget(EObject model, Assignment assignment, ContentAssistContext context,
+	def locatorID(EObject it) {
+		if(it instanceof BWidgetMapping){
+		val typeNameTmp = widget.class.name.split("\\.").last.toFirstUpper
+		val typeName = typeNameTmp.substring(0, typeNameTmp.length - 4)
+		return '''«widget.name.toFirstLower»«typeName»'''
+		
+		}else{''''''}
+	}
+
+	override completeBWidgetMapping_Locator(EObject it, Assignment assignment, ContentAssistContext context,
 		ICompletionProposalAcceptor acceptor) {
-		val QualifiedName prefixQName = model.getContainerOfType(BMapping)?.screen.fullyQualifiedName
+		if (it instanceof BWidgetMapping) {
+			print  (context.prefix)
+			val proposal =if ('''"'''==context.prefix){ createCompletionProposal('''"«locatorID»''', '''«locatorID»''', null,
+				context) as ConfigurableCompletionProposal}else{
+					createCompletionProposal('''"«locatorID»"''', '''«locatorID»''', null,
+				context) as ConfigurableCompletionProposal
+				}
+			proposal.selectionStart =  if ('''"'''==context.prefix){context.offset}else{
+				context.offset+1
+			} 
+			proposal.selectionLength = locatorID.length
+			acceptor.accept(proposal)
+		} else {
+			super.completeBWidgetMapping_Locator(it, assignment, context, acceptor)
 
-		if (prefixQName == null || prefixQName.empty) {
-			return
-
-		// Xtext default
-		// lookupCrossReference(assignment.getTerminal()as CrossReference, context, acceptor)
-		}
-
-		val widgetTypeERef = GrammarUtil.getReference(assignment.getTerminal() as CrossReference)
-
-		val IScope scope = scopeProvider.getScope(model, widgetTypeERef)
-		for (IEObjectDescription description : scope.allElements) {
-			val qname = description.qualifiedName
-
-			if (qname.startsWith(prefixQName) && qname != prefixQName) {
-				val shortName = qualifiedNameConverter.toString(qname.skipFirst(prefixQName.segmentCount))
-				acceptor.accept(createCompletionProposal(shortName, context))
-			}
 		}
 
 	}
 	
-	 /** 
-     * For a given group, filters the keywords and joins them.
-     * @param group the group to use for the proposal, example: 
-     * myGrammarRuleAccess.getGroup()
-     * 
-     * @param withSpaceBetweenWords - set this to true if the keywords should be joined 
-     * with a 'space'as separator, otherwise they will be just concatenated
-     * 
-     * @return the proposal, example: "I want to" for the grammar rule
-     * 
-     * MyGrammarDatatypeRule:
-     * 'I' 'want' 'to'
-     */
-    def createKeywordProposal(Group group, ContentAssistContext context, ICompletionProposalAcceptor acceptor,
-        boolean withSpaceBetweenWords) {
-        if (group == null) {
-            return null
-        }
-        val joinChar = if (withSpaceBetweenWords) {
-                " "
-            } else {
-                ""
-            }
-        val proposalString = group.elements.filter(Keyword).map[value].join(joinChar) + " "
-        acceptor.accept(createCompletionProposal(proposalString, proposalString, null, context))
-    }
+	override completeBMapping_Screen(EObject it, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		//super.completeBMapping_Screen(model, assignment, context, acceptor)
+		val screenTypeERef = GrammarUtil.getReference(assignment.getTerminal() as CrossReference)
+		val IScope scope = scopeProvider.getScope(it, screenTypeERef)
+		for (IEObjectDescription description : scope.allElements) {
+			val qname = description.qualifiedName
+			val proposal=createCompletionProposal(qname.lastSegment,qname.toString,null,context)as ConfigurableCompletionProposal
+			proposal.setAdditionalData(ImportReplacementTextApplier::ADDITIONAL_DATA_QNAME, qname)
+			proposal.setAdditionalProposalInfo("screen")
+			proposal.setTextApplier(importReplacementTextApplier)
+			acceptor.accept(proposal)
+		}
+	}
+	
+//	override completeBMappingPackage_BImports(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+//		//No explicit import required
+//	}
+//	
+//	override completeBMappingPackage_BMapping(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+////		super.completeBMappingPackage_BMapping(model, assignment, context, acceptor)
+//		acceptor.accept(createCompletionProposal("Mapping ", "Mapping", null, context))
+//	}
+	
+	override complete_LocatorID(EObject it, RuleCall ruleCall, ContentAssistContext context,
+		ICompletionProposalAcceptor acceptor) {
+		if (it instanceof BWidgetMapping) {
+			val proposal = createCompletionProposal('''id : "«locatorID»"''', "id :", null,
+				context) as ConfigurableCompletionProposal
+			
+			proposal.selectionStart = context.offset+6
+			proposal.selectionLength = locatorID.length
+			acceptor.accept(proposal)
+		} else {
+			super.complete_LocatorID(it, ruleCall, context, acceptor)
 
-    def createKeywordProposal(Group group, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-        createKeywordProposal(group, context, acceptor, true)
-    }
+		}
+	}
+	
+	override complete_URLAttribute(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		val proposal = createCompletionProposal('''url : "https://www."''', '''url''', null,
+				context) as ConfigurableCompletionProposal
+		proposal.cursorPosition = 19
+		acceptor.accept(proposal)
+	}
+	
+	override complete_LabelAttribute(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		if (model instanceof BMapping){
+		val proposal = createCompletionProposal('''label : "«model.screen.name.split("\\.").last»"''', '''label''', null,
+				context) as ConfigurableCompletionProposal
+		proposal.selectionStart = context.offset+9
+		proposal.selectionLength=model.screen.name.split("\\.").last.length
+		acceptor.accept(proposal)
+		
+		}
+	}
+
+	override complete_ComboButtonLocator(EObject model, RuleCall ruleCall, ContentAssistContext context,
+		ICompletionProposalAcceptor acceptor) {
+		if (isComboMapping(model)) {
+			comboButtonLocatorAccess.group.createKeywordProposal(context, acceptor)
+		}
+	}
+
+	override complete_ComboTableLocator(EObject model, RuleCall ruleCall, ContentAssistContext context,
+		ICompletionProposalAcceptor acceptor) {
+		if (isComboMapping(model)) {
+			comboTableLocatorAccess.group.createKeywordProposal(context, acceptor)
+		}
+	}
+
+	def private isComboMapping(EObject model) {
+		switch model {
+			BWidgetMapping: return (model.widget instanceof Combo)
+		}
+	}
+
+	def addProposalsForWidget(EObject it, Assignment assignment, ContentAssistContext context,
+		ICompletionProposalAcceptor acceptor) {
+		val QualifiedName prefixQName = getContainerOfType(BMapping)?.screen.fullyQualifiedName
+		val alreadyMapped = getContainerOfType(BMapping)?.BWidgetMapping.map[widget.name].toList
+		if (prefixQName == null || prefixQName.empty) {
+			return
+
+		}
+
+		val widgetTypeERef = GrammarUtil.getReference(assignment.getTerminal() as CrossReference)
+
+		val IScope scope = scopeProvider.getScope(it, widgetTypeERef)
+		for (IEObjectDescription description : scope.allElements) {
+			val qname = description.qualifiedName
+			if (!alreadyMapped.contains(qname.lastSegment)) {
+					
+				if (qname.startsWith(prefixQName) && qname != prefixQName) {
+					val locatorProposal='''«qname.lastSegment.toFirstLower»«description.EClass.name.replace("Impl","").toFirstUpper»'''
+					
+					val shortName = qualifiedNameConverter.toString(qname.skipFirst(prefixQName.segmentCount))
+					val replacementString = '''«qualifiedNameConverter.toString(qname.skipFirst(prefixQName.segmentCount))» id : "«locatorProposal»"'''
+					
+					val proposal=createCompletionProposal(replacementString,shortName,null,context)as ConfigurableCompletionProposal
+					proposal.selectionStart = context.offset + qname.lastSegment.length + 7
+					proposal.selectionLength = locatorProposal.length			
+					acceptor.accept(proposal)
+				}
+
+			}
+		}
+
+	}
+
+	/** 
+	 * For a given group, filters the keywords and joins them.
+	 * @param group the group to use for the proposal, example: 
+	 * myGrammarRuleAccess.getGroup()
+	 * 
+	 * @param withSpaceBetweenWords - set this to true if the keywords should be joined 
+	 * with a 'space'as separator, otherwise they will be just concatenated
+	 * 
+	 * @return the proposal, example: "I want to" for the grammar rule
+	 * 
+	 * MyGrammarDatatypeRule:
+	 * 'I' 'want' 'to'
+	 */
+	def createKeywordProposal(Group group, ContentAssistContext context, ICompletionProposalAcceptor acceptor,
+		boolean withSpaceBetweenWords) {
+		if (group == null) {
+			return null
+		}
+		val joinChar = if (withSpaceBetweenWords) {
+				" "
+			} else {
+				""
+			}
+		val proposalString = group.elements.filter(Keyword).map[value].join(joinChar) + " "
+		acceptor.accept(createCompletionProposal(proposalString, proposalString, null, context))
+	}
+
+	def createKeywordProposal(Group group, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		createKeywordProposal(group, context, acceptor, true)
+	}
 
 }

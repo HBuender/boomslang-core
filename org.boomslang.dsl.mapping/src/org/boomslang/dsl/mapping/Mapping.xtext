@@ -3,202 +3,163 @@ grammar org.boomslang.dsl.mapping.Mapping with org.eclipse.xtext.common.Terminal
 // with org.eclipse.xtext.xbase.Xtype // error
 // public class AbstractMappingValidator extends org.eclipse.xtext.xbase.validation.XtypeValidator {
 // org.eclipse.xtext.xbase.validation.XtypeValidator cannot be resolved to a type   
-
-
 import "http://wireframesketcher.com/1.0/model.ecore" as uid
 import "http://www.eclipse.org/xtext/common/JavaVMTypes" as types
 generate mapping "http://www.esgroup.ch/boomslang/dsl/mapping/Mapping"
-
 import "org.boomslang.core" as bcore
 
 BPackage returns bcore::BPackage:
-    BMappingPackage
-;
+	BMappingPackage;
 
-// TODO common core DSL with Package, Import and other common elements
+	// TODO common core DSL with Package, Import and other common elements
 BMappingPackage:
-    'package' name=QualifiedName
-    bImports+=BImport*
-    bVariables+=BVariable*
-    bMapping=BMapping?;
+	'package' name=QualifiedName
+	(bImports+=BImport)*
+	// bVariables+=BVariable*
+	(bMapping=BMapping)?;
 
 BImport returns bcore::BImport:
-    'import' ( importedNamespace=QualifiedNameWithWildcard | importedNamespace=QualifiedName )
-;
+	'import' (importedNamespace=QualifiedNameWithWildcard | importedNamespace=QualifiedName);
 
-BVariable:
-    '@' name=ID ':' expression=MExpression ';'
-;
-
+	//BVariable:
+//    '@' name=ID ':' expression=MExpression ';'
+//;
 BMapping:
-    'Mapping' screen=[uid::Screen|QualifiedName]
-    ('driver' ':' screenNavigator=QualifiedName)?
-    bUrl=BUrl
-    bLabel=BLabel
-    (bId=BId)?
-    (bWidgetMapping+=BWidgetMapping|TabItem+=BTabItemMapping)*
+	'Mapping' screen=[uid::Screen|QualifiedName]
+	// ('driver' ':' screenNavigator=QualifiedName)?
+	bUrl=BUrl
+	bLabel=BLabel
+	//(bId=BId)?
+	(bWidgetMapping+=BWidgetMapping)*;
+
+URLAttribute:
+	'url' ':'
 ;
-    
-    
+
 BUrl:
-{BUrl}
-    'url' '{'
-        ('path' ':' mPath=MExpression)?
-        ('fragment' ':' mFragment=MExpression)? 
-        ('query' ':' mQuery=MExpression)?
-    '}'
+	{BUrl}
+	URLAttribute path=STRING;
+
+LabelAttribute:
+	'label' ':'
 ;
 
 BLabel:
-    'label' '{' 
-        expression=MExpression
-    '}'  
-;
-
-BId:
-    'id' '{'
-        expression=MExpression
-       '}'
-;
-
-BTabItemMapping:
-    'tabItem' tabItem=[uid::Item|QualifiedName] '{'
-        'locator' ':' locator=MExpression
-        '}';
+	LabelAttribute expression=STRING;
 
 BWidgetMapping:
-    {BWidgetMapping}
-    widget=[uid::Widget|QualifiedName] '{'
-        ('driver' ':' widgetNavigator=QualifiedName)?
-        // customGenerator+=[types::JvmType|QualifiedName] 
-        // JvmParameterizedTypeReference
-        'locator' ':' locator=MExpression
-        (ComboButtonLocator comboButtonLocator=MExpression)?
-        (ComboTableLocator comboTableLocator=MExpression)?
-        ('screens' ':' screens+=[uid::Screen|QualifiedName] (',' screens+=[uid::Screen|QualifiedName])*)?
-    '}';
+	{BWidgetMapping}
+	widget=[uid::Widget|QualifiedName]
+	LocatorID locator=STRING
+	('driver' ':' widgetNavigator=QualifiedName)?;
+
+LocatorID:
+	'id' ':';
 
 MExpression:
-    BooleanExpression 
-    ;
+	BooleanExpression;
 
 BooleanExpression returns MExpression:
-    ComparisonExpression
-    ({BooleanExpression.left=current} op=('||' | '&&') right=ComparisonExpression)*;
+	ComparisonExpression
+	({BooleanExpression.left=current} op=('||' | '&&') right=ComparisonExpression)*;
 
 ComparisonExpression returns MExpression:
-    EqualityExpression
-    (({ComparisonExpression.left=current}
-    op=(">=" | "<=" | "<" | ">" | "=>")) right=EqualityExpression)*;
+	EqualityExpression
+	(({ComparisonExpression.left=current}
+	op=(">=" | "<=" | "<" | ">" | "=>")) right=EqualityExpression)*;
 
 EqualityExpression returns MExpression:
-    NotExpression
-    (({EqualityExpression.left=current}
-    op=("==" | "!=")) right=NotExpression)*;
-    
-NotExpression returns MExpression:
-    {NotExpression} '!' notExpression=NotExpression |
-    Term 
-    ;
-    
-Term returns MExpression:
-    '(' MExpression ')' |
-    MVariableRef |
-    IfExpression |
-    MNlsExpression |
-    MLiteral
-;
+	NotExpression
+	(({EqualityExpression.left=current}
+	op=("==" | "!=")) right=NotExpression)*;
 
+NotExpression returns MExpression:
+	{NotExpression} '!' notExpression=NotExpression |
+	Term;
+
+Term returns MExpression:
+	'(' MExpression ')' |
+	IfExpression |
+	MNlsExpression |
+	MLiteral;
 
 IfExpression returns MExpression:
-    'if' '(' condition=BooleanExpression ')'
-    '{'
-    then=MExpression
-    '}'
-    (=> 'else' '{' else=MExpression '}')?;
+	'if' '(' condition=BooleanExpression ')'
+	'{'
+	then=MExpression
+	'}'
+	(=> 'else' '{' else=MExpression '}')?;
 
 MLiteral:
-    MStringLiteral |
-    MBuiltinLiteral;
-
-MVariableRef: 
-    '@' ref=[BVariable|QualifiedName]
-;
+	MStringLiteral |
+	MBuiltinLiteral;
 
 MNlsExpression:
-    MNlsKeyExpr | MNlsMultiLangExpr 
-;
+	MNlsKeyExpr | MNlsMultiLangExpr;
 
-MNlsKeyExpr: 
-    'nls' '{'
-        'key' ':' nlsKey=ID
-    '}'
-;
+MNlsKeyExpr:
+	'nls' '{'
+	'key' ':' nlsKey=ID
+	'}';
 
 MNlsMultiLangExpr:
-    'nls' '{'
-        langDecl+=BNlsLangDecl+
-    '}'
-;
+	'nls' '{'
+	langDecl+=BNlsLangDecl+
+	'}';
 
 BNlsLangDecl:
-    lang=Language ':' expression=MExpression;
+	lang=Language ':' expression=MExpression;
 
 enum LanguageEnum:
-    unspecified |
-    ch |
-    de |
-    en |
-    fr |
-    it;
+	unspecified |
+	ch |
+	de |
+	en |
+	fr |
+	it;
 
 enum Language returns LanguageEnum:
-    ch |
-    de |
-    en |
-    fr |
-    it;
+	ch |
+	de |
+	en |
+	fr |
+	it;
 
-    // TODO better use library approach and/or definition in DSL at runtime)
+	// TODO better use library approach and/or definition in DSL at runtime)
 enum MBuiltinVariablesEnum:
-    HTML_5 |
-    HTML5_HISTORY |
-    DEV_ENV |
-    LIVE_ENV;
+	HTML_5 |
+	HTML5_HISTORY |
+	DEV_ENV |
+	LIVE_ENV;
 
 MStringLiteral:
-    value=STRING;
+	value=STRING;
 
 MBuiltinLiteral:
-    value=MBuiltinVariablesEnum;
+	value=MBuiltinVariablesEnum;
 
-// ============================================================================
+	// ============================================================================
 // Terminal Rules  
 // ============================================================================
-
 ComboButtonLocator:
-    'comboButtonLocator'  ':' 
-;
+	'comboButtonLocator' ':';
 
 ComboTableLocator:
-    'comboTableLocator' ':'   
-;
+	'comboTableLocator' ':';
 
-
-// ============================================================================
+	// ============================================================================
 // Common datatype rules  
 // ============================================================================
 QualifiedName:
-    IdOrKeyword ('.' IdOrKeyword)*;
+	IdOrKeyword ('.' IdOrKeyword)*;
 
 QualifiedNameWithWildcard:
 //  QualifiedName  ('.' '*')?;
-    QualifiedName  '.' '*';
-//    QualifiedName '.*'?;
+	QualifiedName '.' '*';
+	//    QualifiedName '.*'?;
 
 IdOrKeyword:
-    ID |
-    Keyword;
+	ID | Keyword;
 
 Keyword:
 //  '!' |
@@ -217,35 +178,35 @@ Keyword:
 //  '>' |
 //  '>=' |
 //  '@' |
-    'ch' |
-    'comboButtonLocator' |
-    'comboTableLocator' |
-    'de' |
-    'DEV_ENV' |
-    'driver' |
-    'else' |
-    'en' |
-    'fr' |
-    'fragment' |
-    'HTML5_HISTORY' |
-    'HTML_5' |
-    'if' |
-    'import' |
-    'it' |
-    'key' |
-    'label' |
-    'LIVE_ENV' |
-    'locator' |
-    'Mapping' |
-    'nls' |
-    'package' |
-    'path' |
-    'query' |
-    'screens' |
-    'unspecified' |
-    'url'
-//  |
-//  '{' |
-//  '||' |
-//  '}'
+	'ch' |
+	'comboButtonLocator' |
+	'comboTableLocator' |
+	'de' |
+	'DEV_ENV' |
+	'driver' |
+	'else' |
+	'en' |
+	'fr' |
+	'fragment' |
+	'HTML5_HISTORY' |
+	'HTML_5' |
+	'if' |
+	'import' |
+	'it' |
+	'key' |
+	'label' |
+	'LIVE_ENV' |
+	'locator' |
+	'Mapping' |
+	'nls' |
+	'package' |
+	'path' |
+	'query' |
+	'screens' |
+	'unspecified' |
+	'url'
+	//  |
+	//  '{' |
+	//  '||' |
+	//  '}'
 ;
